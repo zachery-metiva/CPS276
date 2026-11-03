@@ -5,7 +5,7 @@ class Db_conn {
 	/* THIS CLASS CONNECTS TO THE DATABASE ONLY AND SETS UP THE ATTRIBUTE PARAMETERS */
 	public function dbOpen(){
 		try {
-			$dbHost = 'localhost';
+			$dbHost = '127.0.0.1';
 			$dbName = 'YOUR_WCC_USERNAME';
 			$dbUsr  = 'YOUR_WCC_USERNAME';
 			$dbPass = 'YOUR_PASSWORD_FROM_MY_CNF';
