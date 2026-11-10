@@ -1,18 +1,84 @@
 <?php
-/* 
-CPS 276 - Assignment 8: Date-Time Notes
+/*
+==========================================================================
+ASSIGNMENT 8 QUESTIONS AND ANSWERS
+==========================================================================
 
-VIDEO QUESTIONS:
-1. Why store a timestamp (or one standard format) instead of a display string like "September 3, 2026"?
-2. Why put date work in a class instead of copying date() calls on every page?
-3. When the user asks for notes in a date range, what steps does the app take to show only those notes?
-4. Why do time zones matter when you convert between a form value and a stored timestamp?
+1. Why store a timestamp (or one standard format) instead of a display
+   string like "September 3, 2026"?
+
+   A timestamp is a single integer, so the database can compare and sort
+   it directly. That is exactly what the query in getNotes() relies on:
+   BETWEEN :begDate AND :endDate only works because the values are
+   numbers, and ORDER BY date_time DESC sorts chronologically. A string
+   like "September 3, 2026" would sort alphabetically (April before
+   January) and range queries would be impossible. Storing one standard
+   format also separates storage from display: buildTable() converts the
+   integer back with date('n/d/Y h:i a', ...), so if the required display
+   format ever changed I would edit that one line and every stored note
+   would show the new format.
+
+2. Why put date work in a class instead of copying date() calls on every
+   page?
+
+   All of the conversion, validation and query logic lives in the
+   Date_time class, so index.php and display_notes.php only need three
+   lines of PHP: require the class, instantiate it, and call
+   checkSubmit(). If I copied strtotime() and date() calls onto every
+   page, a change to the format would mean hunting down every copy, and
+   the copies would eventually drift apart. With the class, the display
+   format exists in exactly one place (buildTable()), so every page shows
+   dates identically, and the pages themselves stay almost pure HTML,
+   which makes them easier to read and maintain.
+
+3. When the user asks for notes in a date range, what steps does the app
+   take to show only those notes?
+
+   The getNotes() method works through five steps. First it reads begDate
+   and endDate from the POST. Second it validates that both were entered;
+   if not it returns the "No notes found for the date range selected"
+   message. Third it converts the dates to timestamps that cover the
+   whole days: the beginning date at 00:00:00 and the ending date at
+   23:59:59, so a note written any time on the last day is still
+   included. Fourth it runs a bound prepared query using BETWEEN, ordered
+   DESC so the newest note comes first. Finally each stored timestamp is
+   converted back to a readable m/dd/yyyy hh:mm am/pm string and placed
+   into the Bootstrap table, or a message is shown if no rows matched.
+
+4. Why do time zones matter when you convert between a form value and a
+   stored timestamp?
+
+   The datetime-local field sends a local wall clock value like
+   2026-11-09T14:30 with no time zone attached, but a Unix timestamp is
+   an absolute moment counted from UTC. strtotime() has to assume a time
+   zone to turn the string into a number, and date() has to assume one to
+   turn the number back into a string. If those two assumptions differ,
+   for example the server defaulting to UTC while the user is in Eastern
+   time, every note would display four or five hours off, and a range
+   query could even miss notes written near midnight. That is why the
+   constructor calls date_default_timezone_set('America/Detroit'): both
+   directions of the conversion use the same zone, so the time the user
+   typed is the time they see back.
+
 5. Why validate that the start date is not after the end date?
+
+   A reversed range can never match anything, because BETWEEN needs a
+   value that is greater than the start and less than the end at the same
+   time. Without the check the user would just see "no notes found" and
+   might think their notes were lost, when really the form was filled in
+   backwards. Catching it in getNotes() with if($begTs > $endTs) lets me
+   show a specific message, "The beginning date cannot be after the
+   ending date", which tells the user exactly how to fix their input. It
+   also avoids sending the database a query that is guaranteed to return
+   nothing.
+
+==========================================================================
 
 This class does ALL operations for adding and displaying notes.
 The pages (index.php and display_notes.php) only require this class,
 instantiate it, and call checkSubmit().
 */
+
 
 require_once 'Pdo_methods.php';
 
