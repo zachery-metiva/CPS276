@@ -1,7 +1,9 @@
 /*
-  CPS276 - Assignment 9: JavaScript Part 1
-  A console gradebook: cleans emails, assigns letter grades, decides who
-  passed, computes the class average, and logs a formatted report.
+  Assignment 9 — CPS276 Gradebook
+  Chapter 11: JavaScript language basics
+
+  Open index.html, then press F12 and use the Console tab.
+  Do not use the DOM, events, forms, Fetch, or PHP.
 
   ===========================================================================
   ASSIGNMENT 9 QUESTIONS AND ANSWERS
@@ -23,11 +25,11 @@
      const declares a variable that cannot be reassigned after it is given a
      value. let declares a variable whose value is allowed to change. In this
      assignment I used const for almost everything: the course name, the
-     students array, the function parameters' derived values, and each loop's
-     per-student values, because none of them get reassigned. I used let only
-     inside classAverage for the running total (let total = 0), because the
-     total must change as each score is added. The course rule is const by
-     default, let only when a value must change, and no var at all.
+     students array, and each loop's per-student values, because none of them
+     get reassigned. I used let only inside classAverage for the running
+     total (let total = 0), because the total must change as each score is
+     added. The course rule is const by default, let only when a value must
+     change, and no var at all.
 
   3. Why does this course prefer === over ==? Give a short example of how ==
      can surprise you.
@@ -68,75 +70,79 @@
 const course = "CPS276";
 
 const students = [
-    { name: "Ava Chen", email: " Ava.Chen@WCCNet.edu ", score: 94 },
-    { name: "Ben Ortiz", email: "BEN.ORTIZ@wccnet.edu", score: 81 },
-    { name: "Cara Singh", email: " cara.singh@WCCNET.EDU", score: 73 },
-    { name: "Drew Patel", email: " drew.patel@wccnet.edu ", score: 66 },
-    { name: "Elena Brooks", email: "ELENA.BROOKS@WCCNet.edu", score: 88 }
+  { name: "Ava Chen", email: "  Ava.Chen@WCCNet.edu ", score: 94 },
+  { name: "Ben Ortiz", email: "BEN.ORTIZ@wccnet.edu", score: 81 },
+  { name: "Cara Singh", email: "  cara.singh@WCCNET.EDU", score: 73 },
+  { name: "Drew Patel", email: " drew.patel@wccnet.edu ", score: 66 },
+  { name: "Elena Brooks", email: "ELENA.BROOKS@WCCNet.edu", score: 88 }
 ];
 
-// Return the email after trim() and toLowerCase().
 function cleanEmail(rawEmail) {
-    return rawEmail.trim().toLowerCase();
+  // return the email after trim() and toLowerCase()
+  return rawEmail.trim().toLowerCase();
 }
 
-// Return "A" for 90+, "B" for 80-89, "C" for 70-79, otherwise "F".
 function letterGrade(score) {
-    if (score >= 90) {
-        return "A";
-    } else if (score >= 80) {
-        return "B";
-    } else if (score >= 70) {
-        return "C";
-    } else {
-        return "F";
-    }
+  // return "A", "B", "C", or "F"
+  if (score >= 90) {
+    return "A";
+  } else if (score >= 80) {
+    return "B";
+  } else if (score >= 70) {
+    return "C";
+  } else {
+    return "F";
+  }
 }
 
-// Return "pass" if the score is greater than or equal to 70, otherwise "fail".
 function statusLabel(score) {
-    if (score >= 70) {
-        return "pass";
-    }
-    return "fail";
+  // return "pass" or "fail"
+  if (score >= 70) {
+    return "pass";
+  }
+  return "fail";
 }
 
-// Return the average of all student scores as a number.
 function classAverage(list) {
-    let total = 0;
-    for (const student of list) {
-        total += student.score;
-    }
-    return total / list.length;
+  // return the average score as a number (do not hard-code 80.4)
+  let total = 0;
+  for (const student of list) {
+    total += student.score;
+  }
+  return total / list.length;
 }
 
-// Return a comma-separated string of names for students who passed (score >= 70).
 function passingNames(list) {
-    return list
-        .filter((student) => student.score >= 70)
-        .map((student) => student.name)
-        .join(", ");
+  // filter passing students, map to names, join with ", "
+  return list
+    .filter((student) => student.score >= 70)
+    .map((student) => student.name)
+    .join(", ");
 }
 
-// Log the full gradebook report to the console.
 function printReport(list) {
-    console.log(`=== ${course} Gradebook ===`);
-    console.log("");
+  console.log(`=== ${course} Gradebook ===`);
+  console.log("");
 
-    for (const student of list) {
-        console.log(
-            `${student.name} | ${cleanEmail(student.email)} | ${student.score} | ${letterGrade(student.score)} | ${statusLabel(student.score)}`
-        );
-    }
+  // loop through list
+  // log each student: name | cleaned email | score | letter | pass/fail
+  for (const student of list) {
+    console.log(
+      `${student.name} | ${cleanEmail(student.email)} | ${student.score} | ${letterGrade(student.score)} | ${statusLabel(student.score)}`
+    );
+  }
 
-    console.log("");
+  console.log("");
 
-    const passedCount = list.filter((student) => student.score >= 70).length;
-    const failedCount = list.length - passedCount;
+  // log class average
+  // log passing students as one comma-separated string
+  // log how many passed and how many failed
+  const passedCount = list.filter((student) => student.score >= 70).length;
+  const failedCount = list.length - passedCount;
 
-    console.log(`Class average: ${classAverage(list)}`);
-    console.log(`Passing students: ${passingNames(list)}`);
-    console.log(`Passed: ${passedCount} | Failed: ${failedCount}`);
+  console.log(`Class average: ${classAverage(list)}`);
+  console.log(`Passing students: ${passingNames(list)}`);
+  console.log(`Passed: ${passedCount} | Failed: ${failedCount}`);
 }
 
 printReport(students);
